@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		_LinkFileRef_AlchemyCSA_via_AlchemyCSATestSuite /* AlchemyCSA.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "_____Product_AlchemyCSA" /* AlchemyCSA.framework */; };
-		__src_cc_ref_Sources/AlchemyCSA.swift /* AlchemyCSA.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/AlchemyCSA.swift /* AlchemyCSA.swift */; };
+		__src_cc_ref_Sources/AlchemyCSA.swift /* Alphabet.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/AlchemyCSA.swift /* Alphabet.swift */; };
 		__src_cc_ref_Tests/AlchemyCSA/AlchemyCSATests.swift /* AlchemyCSATests.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Tests/AlchemyCSA/AlchemyCSATests.swift /* AlchemyCSATests.swift */; };
 /* End PBXBuildFile section */
 
@@ -26,11 +26,12 @@
 		83147B6E1D23F7B600289BA6 /* Demo.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = Demo.playground; sourceTree = "<group>"; };
 		83147B6F1D23F7B600289BA6 /* LICENSE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		83147B701D23F7B600289BA6 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		83147B741D2410B700289BA6 /* pdz.aln */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = pdz.aln; path = Data/pdz.aln; sourceTree = "<group>"; };
 		__PBXFileRef_AlchemyCSA.xcodeproj/Configs/Project.xcconfig /* Project.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Project.xcconfig; path = AlchemyCSA.xcodeproj/Configs/Project.xcconfig; sourceTree = "<group>"; };
 		__PBXFileRef_AlchemyCSATestSuite_Info.plist /* AlchemyCSATestSuite_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = AlchemyCSATestSuite_Info.plist; path = AlchemyCSA.xcodeproj/AlchemyCSATestSuite_Info.plist; sourceTree = SOURCE_ROOT; };
 		__PBXFileRef_AlchemyCSA_Info.plist /* AlchemyCSA_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = AlchemyCSA_Info.plist; path = AlchemyCSA.xcodeproj/AlchemyCSA_Info.plist; sourceTree = SOURCE_ROOT; };
 		__PBXFileRef_Package.swift /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
-		__PBXFileRef_Sources/AlchemyCSA.swift /* AlchemyCSA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AlchemyCSA.swift; path = Sources/AlchemyCSA.swift; sourceTree = "<group>"; };
+		__PBXFileRef_Sources/AlchemyCSA.swift /* Alphabet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Alphabet.swift; path = Sources/Alphabet.swift; sourceTree = "<group>"; };
 		__PBXFileRef_Tests/AlchemyCSA/AlchemyCSATests.swift /* AlchemyCSATests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlchemyCSATests.swift; sourceTree = "<group>"; };
 		"_____Product_AlchemyCSA" /* AlchemyCSA.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AlchemyCSA.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		"_____Product_AlchemyCSATestSuite" /* AlchemyCSATestSuite.xctest */ = {isa = PBXFileReference; lastKnownFileType = file; path = AlchemyCSATestSuite.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -64,6 +65,14 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		83147B731D24109A00289BA6 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				83147B741D2410B700289BA6 /* pdz.aln */,
+			);
+			name = Data;
+			sourceTree = "<group>";
+		};
 		TestProducts_ /* Tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -80,6 +89,7 @@
 				__PBXFileRef_Package.swift /* Package.swift */,
 				83147B6E1D23F7B600289BA6 /* Demo.playground */,
 				"_____Configs_" /* Configs */,
+				83147B731D24109A00289BA6 /* Data */,
 				"_____Sources_" /* Sources */,
 				83147B6D1D23F74200289BA6 /* Supporting Files */,
 				"_______Tests_" /* Tests */,
@@ -107,7 +117,7 @@
 		"_____Sources_" /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				__PBXFileRef_Sources/AlchemyCSA.swift /* AlchemyCSA.swift */,
+				__PBXFileRef_Sources/AlchemyCSA.swift /* Alphabet.swift */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -196,7 +206,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				__src_cc_ref_Sources/AlchemyCSA.swift /* AlchemyCSA.swift in Sources */,
+				__src_cc_ref_Sources/AlchemyCSA.swift /* Alphabet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
