@@ -40,7 +40,7 @@ public func uniform() -> Float {
 class AlchemyCSATests: XCTestCase {
 
     /// ...
-    func assayAlphabet<A: Alphabet>(alphabet: A.Type) {
+    func assayAlphabet<A: Alphabet>(alphabet: A.Type, alphabetSize: Int) {
         for letter in A.allTokens {
             let token: Character
             if uniform() < 0.5 {
@@ -50,6 +50,7 @@ class AlchemyCSATests: XCTestCase {
             }
             XCTAssert(A(token:token) != nil, "\(token) failed to convert to \(A.self)")
         }
+        XCTAssert(A.allTokens.count == alphabetSize, "\(A.self) has size of \(A.allTokens.count) not \(alphabetSize)")
     }
     
     /// ... 
@@ -76,12 +77,12 @@ class AlchemyCSATests: XCTestCase {
     
     /// ...
     func testAlphabets() {
-        assayAlphabet(alphabet:AminoAcid.self)
-        XCTAssert(AminoAcid.allTokens.count == 20)
-        assayAlphabet(alphabet:DNA.self)
-        XCTAssert(DNA.allTokens.count == 4)
-        assayAlphabet(alphabet:RNA.self)
-        XCTAssert(RNA.allTokens.count == 4)
+        assayAlphabet(alphabet:AminoAcid.self, alphabetSize:20)
+        assayAlphabet(alphabet:Aligned<AminoAcid>.self, alphabetSize:21)
+        assayAlphabet(alphabet:DNA.self, alphabetSize:4)
+        assayAlphabet(alphabet:Aligned<DNA>.self, alphabetSize:5)
+        assayAlphabet(alphabet:RNA.self, alphabetSize:4)
+        assayAlphabet(alphabet:Aligned<RNA>.self, alphabetSize:5)
     }
     
     /// ...

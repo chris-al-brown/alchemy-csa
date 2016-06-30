@@ -37,13 +37,13 @@ func fastaPrint<T: Alphabet>(record: (String, [T?])?) {
     }
     let header = record.0
     print(">\(header)")
-    let sequence = String(record.1.map { return $0?.token ?? "-" })
+    let sequence = String(record.1.map { return $0?.token ?? "•"})
     print("\(sequence)")
 }
 
 /// load a simple alignment and stream fasta records
 if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
-   var stream = FastaStream<AminoAcid>(openAtPath:path)
+   var stream = FastaStream<Gapped<AminoAcid>>(openAtPath:path)
 {
     fastaPrint(record:stream.read())
     fastaPrint(record:stream.read())

@@ -40,6 +40,72 @@ public protocol Alphabet: Hashable {
 }
 
 /// ...
+public enum Aligned<Letter: Alphabet>: Alphabet {
+    
+    /// ...
+    case gap
+    
+    /// ...
+    case letter(Letter)
+    
+    /// ...
+    public static var allTokens: Set<Aligned<Letter>> {
+        return Set(Letter.allTokens.map { return .letter($0) } + [.gap])
+    }
+    
+    /// ...
+    public init?(token: Character) {
+        switch token {
+        case "-":
+            self = .gap
+        default:
+            if let a = Letter(token:token) {
+                self = .letter(a)
+            } else {
+                return nil
+            }
+        }
+    }
+    
+    /// ...
+    public var token: Character {
+        switch self {
+        case .gap:
+            return "-"
+        case .letter(let l):
+            return l.token
+        }
+    }
+}
+
+/// ...
+extension Aligned: Hashable {
+    
+    /// ...
+    public var hashValue: Int {
+        switch self {
+        case .gap:
+            return ("-" as Character).hashValue
+        case .letter(let l):
+            return l.token.hashValue
+        }
+    }
+}
+
+/// ...
+extension Aligned: Equatable {}
+public func ==<T>(lhs: Aligned<T>, rhs: Aligned<T>) -> Bool {
+    switch (lhs, rhs) {
+    case (.gap, .gap):
+        return true
+    case (.letter(let l), .letter(let r)):
+        return l == r
+    default:
+        return false
+    }
+}
+
+/// ...
 public enum AminoAcid: Alphabet {
 
     /// ...
@@ -306,3 +372,12 @@ public enum RNA: Alphabet {
         }
     }
 }
+
+
+
+
+
+
+
+
+
