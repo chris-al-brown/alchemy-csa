@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		83147B781D25109000289BA6 /* DataStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83147B771D25109000289BA6 /* DataStream.swift */; };
+		83C42EE51D2566E400658614 /* small.aln in Resources */ = {isa = PBXBuildFile; fileRef = 83A581341D255774000CC2CF /* small.aln */; };
+		83C42EE61D2568D400658614 /* large.aln in Resources */ = {isa = PBXBuildFile; fileRef = 83147B741D2410B700289BA6 /* large.aln */; };
 		_LinkFileRef_AlchemyCSA_via_AlchemyCSATestSuite /* AlchemyCSA.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "_____Product_AlchemyCSA" /* AlchemyCSA.framework */; };
 		__src_cc_ref_Sources/AlchemyCSA.swift /* Alphabet.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/AlchemyCSA.swift /* Alphabet.swift */; };
 		__src_cc_ref_Tests/AlchemyCSA/AlchemyCSATests.swift /* AlchemyCSATests.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Tests/AlchemyCSA/AlchemyCSATests.swift /* AlchemyCSATests.swift */; };
@@ -26,7 +29,9 @@
 		83147B6E1D23F7B600289BA6 /* Demo.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = Demo.playground; sourceTree = "<group>"; };
 		83147B6F1D23F7B600289BA6 /* LICENSE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		83147B701D23F7B600289BA6 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		83147B741D2410B700289BA6 /* pdz.aln */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = pdz.aln; path = Data/pdz.aln; sourceTree = "<group>"; };
+		83147B741D2410B700289BA6 /* large.aln */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = large.aln; path = Data/large.aln; sourceTree = "<group>"; };
+		83147B771D25109000289BA6 /* DataStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataStream.swift; path = Sources/DataStream.swift; sourceTree = "<group>"; };
+		83A581341D255774000CC2CF /* small.aln */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = small.aln; path = Data/small.aln; sourceTree = "<group>"; };
 		__PBXFileRef_AlchemyCSA.xcodeproj/Configs/Project.xcconfig /* Project.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Project.xcconfig; path = AlchemyCSA.xcodeproj/Configs/Project.xcconfig; sourceTree = "<group>"; };
 		__PBXFileRef_AlchemyCSATestSuite_Info.plist /* AlchemyCSATestSuite_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = AlchemyCSATestSuite_Info.plist; path = AlchemyCSA.xcodeproj/AlchemyCSATestSuite_Info.plist; sourceTree = SOURCE_ROOT; };
 		__PBXFileRef_AlchemyCSA_Info.plist /* AlchemyCSA_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = AlchemyCSA_Info.plist; path = AlchemyCSA.xcodeproj/AlchemyCSA_Info.plist; sourceTree = SOURCE_ROOT; };
@@ -68,7 +73,8 @@
 		83147B731D24109A00289BA6 /* Data */ = {
 			isa = PBXGroup;
 			children = (
-				83147B741D2410B700289BA6 /* pdz.aln */,
+				83147B741D2410B700289BA6 /* large.aln */,
+				83A581341D255774000CC2CF /* small.aln */,
 			);
 			name = Data;
 			sourceTree = "<group>";
@@ -118,6 +124,7 @@
 			isa = PBXGroup;
 			children = (
 				__PBXFileRef_Sources/AlchemyCSA.swift /* Alphabet.swift */,
+				83147B771D25109000289BA6 /* DataStream.swift */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -164,6 +171,7 @@
 			buildPhases = (
 				CompilePhase_AlchemyCSATestSuite /* Sources */,
 				"___LinkPhase_AlchemyCSATestSuite" /* Frameworks */,
+				83C42EE41D2566DE00658614 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -201,12 +209,25 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		83C42EE41D2566DE00658614 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				83C42EE61D2568D400658614 /* large.aln in Resources */,
+				83C42EE51D2566E400658614 /* small.aln in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		CompilePhase_AlchemyCSA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
 				__src_cc_ref_Sources/AlchemyCSA.swift /* Alphabet.swift in Sources */,
+				83147B781D25109000289BA6 /* DataStream.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
