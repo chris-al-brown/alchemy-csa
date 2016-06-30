@@ -58,10 +58,6 @@ Check out 'Demo.playground' for example usage.
 
 1. [Validation of coevolving residue algorithms via pipeline sensitivity analysis: ELSC and OMES and ZNMI, oh my!](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0010779)
 
-2. [Parsing whitespace in an Xcode extension](https://www.cocoawithlove.com/blog/2016/06/25/policing-whitespace.html)
-
-3. [Comparing Swift to C++ for parsing](https://www.cocoawithlove.com/blog/2016/05/01/swift-name-demangling.html)
-
 ## License
 
 AlchemyCSA is released under the [MIT License](LICENSE.md).
