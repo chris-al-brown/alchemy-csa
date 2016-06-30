@@ -41,16 +41,16 @@ class AlchemyCSATests: XCTestCase {
 
     /// ...
     func assayAlphabet<A: Alphabet>(alphabet: A.Type, alphabetSize: Int) {
-        for letter in A.allTokens {
+        for letter in A.allLetters {
             let token: Character
             if uniform() < 0.5 {
-                token = String(letter.token).uppercased().characters.first!
+                token = String(letter).uppercased().characters.first!
             } else {
-                token = String(letter.token).lowercased().characters.first!
+                token = String(letter).lowercased().characters.first!
             }
-            XCTAssert(A(token:token) != nil, "\(token) failed to convert to \(A.self)")
+            XCTAssert(A(letter:token) != nil, "\(token) failed to convert to \(A.self)")
         }
-        XCTAssert(A.allTokens.count == alphabetSize, "\(A.self) has size of \(A.allTokens.count) not \(alphabetSize)")
+        XCTAssert(A.allLetters.count == alphabetSize, "\(A.self) has size of \(A.allLetters.count) not \(alphabetSize)")
     }
     
     /// ... 
@@ -59,7 +59,7 @@ class AlchemyCSATests: XCTestCase {
             XCTFail("Failed to locate \"\(resource)\"")
             return
         }
-        guard var stream = FastaStream<AminoAcid>(openAtPath:path) else {
+        guard var stream = FastaStream<Protein>(openAtPath:path) else {
             XCTFail("Failed to stream \"\(resource)\"")
             return
         }
@@ -77,10 +77,10 @@ class AlchemyCSATests: XCTestCase {
     
     /// ...
     func testAlphabets() {
-        assayAlphabet(alphabet:AminoAcid.self, alphabetSize:20)
-        assayAlphabet(alphabet:Aligned<AminoAcid>.self, alphabetSize:21)
         assayAlphabet(alphabet:DNA.self, alphabetSize:4)
         assayAlphabet(alphabet:Aligned<DNA>.self, alphabetSize:5)
+        assayAlphabet(alphabet:Protein.self, alphabetSize:20)
+        assayAlphabet(alphabet:Aligned<Protein>.self, alphabetSize:21)
         assayAlphabet(alphabet:RNA.self, alphabetSize:4)
         assayAlphabet(alphabet:Aligned<RNA>.self, alphabetSize:5)
     }
