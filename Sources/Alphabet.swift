@@ -27,53 +27,54 @@
 import Foundation
 
 /// ...
-public protocol Alphabet: Hashable {
+public protocol Alphabet: CustomStringConvertible, Hashable {
 
     /// ...
-    static var allTokens: Set<Self> { get }
+    static var allLetters: Set<Self> { get }
 
     /// ...
-    init?(token: Character)
-    
-    /// ...
-    var token: Character { get }
+    init?(letter: Character)
 }
 
 /// ...
-public enum Aligned<Letter: Alphabet>: Alphabet {
+public enum Aligned<Wrapped: Alphabet>: Alphabet {
     
     /// ...
     case gap
     
     /// ...
-    case letter(Letter)
+    case wrapped(Wrapped)
     
     /// ...
-    public static var allTokens: Set<Aligned<Letter>> {
-        return Set(Letter.allTokens.map { return .letter($0) } + [.gap])
+    public static var allLetters: Set<Aligned<Wrapped>> {
+        return Set(Wrapped.allLetters.map { return .wrapped($0) } + [.gap])
     }
     
     /// ...
-    public init?(token: Character) {
-        switch token {
-        case "-":
+    public init?(letter: Character) {
+        switch letter {
+        case "-", ".":
             self = .gap
         default:
-            if let a = Letter(token:token) {
-                self = .letter(a)
+            if let w = Wrapped(letter:letter) {
+                self = .wrapped(w)
             } else {
                 return nil
             }
         }
     }
+}
+
+/// ...
+extension Aligned: CustomStringConvertible {
     
     /// ...
-    public var token: Character {
+    public var description: String {
         switch self {
         case .gap:
             return "-"
-        case .letter(let l):
-            return l.token
+        case .wrapped(let w):
+            return w.description
         }
     }
 }
@@ -86,8 +87,8 @@ extension Aligned: Hashable {
         switch self {
         case .gap:
             return ("-" as Character).hashValue
-        case .letter(let l):
-            return l.token.hashValue
+        case .wrapped(let w):
+            return w.hashValue
         }
     }
 }
@@ -98,7 +99,7 @@ public func ==<T>(lhs: Aligned<T>, rhs: Aligned<T>) -> Bool {
     switch (lhs, rhs) {
     case (.gap, .gap):
         return true
-    case (.letter(let l), .letter(let r)):
+    case (.wrapped(let l), .wrapped(let r)):
         return l == r
     default:
         return false
@@ -106,44 +107,99 @@ public func ==<T>(lhs: Aligned<T>, rhs: Aligned<T>) -> Bool {
 }
 
 /// ...
-public enum AminoAcid: Alphabet {
+public enum DNA: Alphabet {
 
     /// ...
-    case alanine
+    case adenine
 
+    /// ...
+    case cytosine
+
+    /// ...
+    case guanine
+
+    /// ...
+    case thymine
+    
+    /// ...
+    public static let allLetters: Set<DNA> = [
+        .adenine, .cytosine, .guanine, .thymine
+    ]
+    
+    /// ...
+    public init?(letter: Character) {
+        switch letter {
+        case "a", "A":
+            self = .adenine
+        case "c", "C":
+            self = .cytosine
+        case "g", "G":
+            self = .guanine
+        case "t", "T":
+            self = .thymine
+        default:
+            return nil
+        }
+    }
+}
+
+/// ...
+extension DNA: CustomStringConvertible {
+
+    /// ...
+    public var description: String {
+        switch self {
+        case .adenine:
+            return "A"
+        case .cytosine:
+            return "C"
+        case .guanine:
+            return "G"
+        case .thymine:
+            return "T"
+        }
+    }
+}
+
+/// ...
+public enum Protein: Alphabet {
+    
+    /// ...
+    case alanine
+    
     /// ...
     case arginine
     
     /// ...
     case asparagine
-
+    
     /// ...
     case asparticAcid
     
     /// ...
     case cysteine
-
+    
     /// ...
     case glutamicAcid
     
     /// ...
     case glutamine
-
+    
     /// ...
     case glycine
     
     /// ...
     case histidine
-
+    
     /// ...
     case isoleucine
-
+    
     /// ...
     case leucine
     
     /// ...
     case lysine
-
+    
     /// ...
     case methionine
     
@@ -155,21 +211,21 @@ public enum AminoAcid: Alphabet {
     
     /// ...
     case serine
-
+    
     /// ...
     case threonine
-
+    
     /// ...
     case tryptophan
-
+    
     /// ...
     case tyrosine
-
+    
     /// ...
     case valine
-
+    
     /// ...
-    public static let allTokens: Set<AminoAcid> = [
+    public static let allLetters: Set<Protein> = [
         .alanine, .arginine, .asparagine, .asparticAcid, .cysteine,
         .glutamicAcid, .glutamine, .glycine, .histidine, .isoleucine,
         .leucine, .lysine, .methionine, .phenylalanine, .proline,
@@ -177,8 +233,8 @@ public enum AminoAcid: Alphabet {
     ]
     
     /// ...
-    public init?(token: Character) {
-        switch token {
+    public init?(letter: Character) {
+        switch letter {
         case "a", "A":
             self = .alanine
         case "r", "R":
@@ -223,9 +279,13 @@ public enum AminoAcid: Alphabet {
             return nil
         }
     }
+}
+
+/// ...
+extension Protein: CustomStringConvertible {
     
     /// ...
-    public var token: Character {
+    public var description: String {
         switch self {
         case .alanine:
             return "A"
@@ -272,57 +332,6 @@ public enum AminoAcid: Alphabet {
 }
 
 /// ...
-public enum DNA: Alphabet {
-
-    /// ...
-    case adenine
-
-    /// ...
-    case cytosine
-
-    /// ...
-    case guanine
-
-    /// ...
-    case thymine
-    
-    /// ...
-    public static let allTokens: Set<DNA> = [
-        .adenine, .cytosine, .guanine, .thymine
-    ]
-    
-    /// ...
-    public init?(token: Character) {
-        switch token {
-        case "a", "A":
-            self = .adenine
-        case "c", "C":
-            self = .cytosine
-        case "g", "G":
-            self = .guanine
-        case "t", "T":
-            self = .thymine
-        default:
-            return nil
-        }
-    }
-    
-    /// ... 
-    public var token: Character {
-        switch self {
-        case .adenine:
-            return "A"
-        case .cytosine:
-            return "C"
-        case .guanine:
-            return "G"
-        case .thymine:
-            return "T"
-        }
-    }
-}
-
-/// ...
 public enum RNA: Alphabet {
     
     /// ...
@@ -338,13 +347,13 @@ public enum RNA: Alphabet {
     case uracil
 
     /// ...
-    public static let allTokens: Set<RNA> = [
+    public static let allLetters: Set<RNA> = [
         .adenine, .cytosine, .guanine, .uracil
     ]
 
     /// ...
-    public init?(token: Character) {
-        switch token {
+    public init?(letter: Character) {
+        switch letter {
         case "a", "A":
             self = .adenine
         case "c", "C":
@@ -357,9 +366,13 @@ public enum RNA: Alphabet {
             return nil
         }
     }
+}
+
+/// ... 
+extension RNA: CustomStringConvertible {
     
     /// ...
-    public var token: Character {
+    public var description: String {
         switch self {
         case .adenine:
             return "A"
@@ -372,8 +385,6 @@ public enum RNA: Alphabet {
         }
     }
 }
-
-
 
 
 

@@ -194,7 +194,7 @@ public struct FastaStream<Letters: Alphabet>: DataStream {
         if stream.peek() == ">" { return }
         guard let line = stream.read() else { return }
         for character in line.characters {
-            sequence.append(Letters(token:character))
+            sequence.append(Letters(letter:character))
         }
         readSequence()
     }
