@@ -24,6 +24,35 @@
 // 06/29/2016
 // -----------------------------------------------------------------------------
 
-//import AlchemyCSA
+import Foundation
+import AlchemyCSA
 
-/// ...
+sizeof(Character)
+
+/// print a fasta record
+func fastaPrint<T: Alphabet>(record: (String, [T?])?) {
+    guard let record = record else {
+        print("...")
+        return
+    }
+    let header = record.0
+    print(">\(header)")
+    let sequence = String(record.1.map { return $0?.token ?? "-" })
+    print("\(sequence)")
+}
+
+/// load a simple alignment and stream fasta records
+if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
+   var stream = FastaStream<AminoAcid>(openAtPath:path)
+{
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    stream.reset()
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+}

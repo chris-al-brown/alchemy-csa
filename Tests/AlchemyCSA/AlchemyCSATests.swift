@@ -52,6 +52,28 @@ class AlchemyCSATests: XCTestCase {
         }
     }
     
+    /// ... 
+    func assayAlignments(resource: String, sequenceCount: Int, sequenceLength: Int) {
+        guard let path = Bundle(for:self.dynamicType).pathForResource(resource, ofType:nil) else {
+            XCTFail("Failed to locate \"\(resource)\"")
+            return
+        }
+        guard var stream = FastaStream<AminoAcid>(openAtPath:path) else {
+            XCTFail("Failed to stream \"\(resource)\"")
+            return
+        }
+        var record = stream.read()
+        var count: Int = 0
+        while record != nil {
+            let header = record!.0
+            let sequence = record!.1
+            XCTAssert(sequence.count == sequenceLength, "\(header) has a sequence length of \(sequence.count) not \(sequenceLength)")
+            count += 1
+            record = stream.read()
+        }
+        XCTAssert(count == sequenceCount, "\"\(resource)\" contained \(count) sequences and not \(sequenceCount)")
+    }
+    
     /// ...
     func testAlphabets() {
         assayAlphabet(alphabet:AminoAcid.self)
@@ -61,11 +83,18 @@ class AlchemyCSATests: XCTestCase {
         assayAlphabet(alphabet:RNA.self)
         XCTAssert(RNA.allTokens.count == 4)
     }
+    
+    /// ...
+    func testDataStreams() {
+        assayAlignments(resource:"small.aln", sequenceCount:5, sequenceLength:15)
+        assayAlignments(resource:"large.aln", sequenceCount:800, sequenceLength:272)
+    }
 
     /// ...
     static var allTests : [(String, (AlchemyCSATests) -> () throws -> Void)] {
         return [
             ("testAlphabets", testAlphabets),
+            ("testDataStreams", testDataStreams)
         ]
     }
 }
