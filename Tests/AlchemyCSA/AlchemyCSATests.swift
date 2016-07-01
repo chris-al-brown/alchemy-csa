@@ -36,6 +36,11 @@ public func uniform() -> Float {
     return unsafeBitCast(u, to:Float.self) - 1.0
 }
 
+/// Returns a uniform in 0..<maximum
+public func random(_ maximum: Int) -> Int {
+    return Int(Float(maximum) * uniform())
+}
+
 /// ...
 class AlchemyCSATests: XCTestCase {
 
@@ -54,7 +59,7 @@ class AlchemyCSATests: XCTestCase {
     }
     
     /// ... 
-    func assayAlignments(resource: String, sequenceCount: Int, sequenceLength: Int) {
+    func assayDataStreams(resource: String, sequenceCount: Int, sequenceLength: Int) {
         guard let path = Bundle(for:self.dynamicType).pathForResource(resource, ofType:nil) else {
             XCTFail("Failed to locate \"\(resource)\"")
             return
@@ -76,19 +81,46 @@ class AlchemyCSATests: XCTestCase {
     }
     
     /// ...
-    func testAlphabets() {
-        assayAlphabet(alphabet:DNA.self, alphabetSize:4)
-        assayAlphabet(alphabet:Aligned<DNA>.self, alphabetSize:5)
-        assayAlphabet(alphabet:Protein.self, alphabetSize:20)
-        assayAlphabet(alphabet:Aligned<Protein>.self, alphabetSize:21)
-        assayAlphabet(alphabet:RNA.self, alphabetSize:4)
-        assayAlphabet(alphabet:Aligned<RNA>.self, alphabetSize:5)
+    func assayAlignments(resource: String) {
+        guard let path = Bundle(for:self.dynamicType).pathForResource(resource, ofType:nil) else {
+            XCTFail("Failed to locate \"\(resource)\"")
+            return
+        }
+        guard let alignment = Alignment<Gapped<Protein>>(open:path, layout:.row) else {
+            XCTFail("Failed to load alignment \"\(path)\"")
+            return
+        }
+        let rowBased = alignment
+        var colBased = alignment
+        colBased.layout = .column
+        let samples = Int(0.5 * Double(alignment.rows) * Double(alignment.columns))
+        for _ in 0..<samples {
+            let row = random(alignment.rows)
+            let col = random(alignment.columns)
+            XCTAssert(rowBased[row, col] == colBased[row, col], "\(alignment) failed memory layout changes")
+        }
     }
     
     /// ...
+    func testAlphabets() {
+        assayAlphabet(alphabet:DNA.self, alphabetSize:4)
+        assayAlphabet(alphabet:Gapped<DNA>.self, alphabetSize:5)
+        assayAlphabet(alphabet:Protein.self, alphabetSize:20)
+        assayAlphabet(alphabet:Gapped<Protein>.self, alphabetSize:21)
+        assayAlphabet(alphabet:RNA.self, alphabetSize:4)
+        assayAlphabet(alphabet:Gapped<RNA>.self, alphabetSize:5)
+    }
+    
+    /// ...
+    func testAlignments() {
+        assayAlignments(resource:"small.aln")
+        assayAlignments(resource:"large.aln")
+    }
+
+    /// ...
     func testDataStreams() {
-        assayAlignments(resource:"small.aln", sequenceCount:5, sequenceLength:15)
-        assayAlignments(resource:"large.aln", sequenceCount:800, sequenceLength:272)
+        assayDataStreams(resource:"small.aln", sequenceCount:5, sequenceLength:15)
+        assayDataStreams(resource:"large.aln", sequenceCount:800, sequenceLength:272)
     }
 
     /// ...
