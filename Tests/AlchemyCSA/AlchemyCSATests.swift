@@ -36,25 +36,30 @@ public func uniform() -> Float {
     return unsafeBitCast(u, to:Float.self) - 1.0
 }
 
+/// Returns a uniform in 0..<maximum
+public func random(_ maximum: Int) -> Int {
+    return Int(Float(maximum) * uniform())
+}
+
 /// ...
 class AlchemyCSATests: XCTestCase {
 
     /// ...
     func assayAlphabet<A: Alphabet>(alphabet: A.Type, alphabetSize: Int) {
         for letter in A.allValues {
-            let character: Character
+            let input: String
             if uniform() < 0.5 {
-                character = String(letter).uppercased().characters.first!
+                input = String(letter).uppercased()
             } else {
-                character = String(letter).lowercased().characters.first!
+                input = String(letter).lowercased()
             }
-            XCTAssert(A(character) != nil, "\(character) failed to convert to \(A.self)")
+            XCTAssert(A(input) != nil, "\(input) failed to convert to \(A.self)")
         }
         XCTAssert(A.allValues.count == alphabetSize, "\(A.self) has size of \(A.allValues.count) not \(alphabetSize)")
     }
     
     /// ... 
-    func assayAlignments(resource: String, sequenceCount: Int, sequenceLength: Int) {
+    func assayDataStreams(resource: String, sequenceCount: Int, sequenceLength: Int) {
         guard let path = Bundle(for:self.dynamicType).pathForResource(resource, ofType:nil) else {
             XCTFail("Failed to locate \"\(resource)\"")
             return
@@ -76,19 +81,51 @@ class AlchemyCSATests: XCTestCase {
     }
     
     /// ...
-    func testAlphabets() {
-        assayAlphabet(alphabet:DNA.self, alphabetSize:4)
-        assayAlphabet(alphabet:Aligned<DNA>.self, alphabetSize:5)
-        assayAlphabet(alphabet:Protein.self, alphabetSize:20)
-        assayAlphabet(alphabet:Aligned<Protein>.self, alphabetSize:21)
-        assayAlphabet(alphabet:RNA.self, alphabetSize:4)
-        assayAlphabet(alphabet:Aligned<RNA>.self, alphabetSize:5)
+    func assayAlignments(resource: String, sampleHeader: String) {
+        guard let path = Bundle(for:self.dynamicType).pathForResource(resource, ofType:nil) else {
+            XCTFail("Failed to locate \"\(resource)\"")
+            return
+        }
+        guard let alignment = Alignment<Protein>(open:path, layout:.row) else {
+            XCTFail("Failed to load alignment \"\(path)\"")
+            return
+        }
+        let rowAlignment = alignment
+        var colAlignment = alignment
+        colAlignment.layout = .column
+        let samples = Int(0.5 * Double(alignment.rowCount) * Double(alignment.columnCount))
+        for _ in 0..<samples {
+            let row = random(alignment.rowCount)
+            let col = random(alignment.columnCount)
+            XCTAssert(rowAlignment[row, col] == colAlignment[row, col], "\(alignment) failed memory layout changes")
+        }
+        XCTAssert(rowAlignment[sampleHeader]! == colAlignment[sampleHeader]!, "\(alignment) failed header lookup for \(sampleHeader)")
+        let rindex = random(alignment.rowCount)
+        XCTAssert(rowAlignment.row(at:rindex) == colAlignment.row(at:rindex), "\(alignment) failed row access for index \(rindex)")
+        let cindex = random(alignment.columnCount)
+        XCTAssert(rowAlignment.column(at:cindex) == colAlignment.column(at:cindex), "\(alignment) failed column access for index \(cindex)")
     }
     
     /// ...
+    func testAlphabets() {
+        assayAlphabet(alphabet:DNA.self, alphabetSize:4)
+        assayAlphabet(alphabet:Gapped<DNA>.self, alphabetSize:5)
+        assayAlphabet(alphabet:Protein.self, alphabetSize:20)
+        assayAlphabet(alphabet:Gapped<Protein>.self, alphabetSize:21)
+        assayAlphabet(alphabet:RNA.self, alphabetSize:4)
+        assayAlphabet(alphabet:Gapped<RNA>.self, alphabetSize:5)
+    }
+    
+    /// ...
+    func testAlignments() {
+        assayAlignments(resource:"small.aln", sampleHeader:"sequence0")
+        assayAlignments(resource:"large.aln", sampleHeader:"Q8YVH0/317-395")
+    }
+
+    /// ...
     func testDataStreams() {
-        assayAlignments(resource:"small.aln", sequenceCount:5, sequenceLength:15)
-        assayAlignments(resource:"large.aln", sequenceCount:800, sequenceLength:272)
+        assayDataStreams(resource:"small.aln", sequenceCount:5, sequenceLength:15)
+        assayDataStreams(resource:"large.aln", sequenceCount:800, sequenceLength:272)
     }
 
     /// ...

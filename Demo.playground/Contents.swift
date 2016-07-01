@@ -28,7 +28,7 @@ import Foundation
 import AlchemyCSA
 
 /// print a fasta record
-func fastaPrint<T: Alphabet>(record: (String, [T?])?) -> String {
+func fastaPrint<T: Alphabet where T: CustomStringConvertible>(record: (String, [T?])?) -> String {
     guard let record = record else {
         return "..."
     }
@@ -39,7 +39,7 @@ func fastaPrint<T: Alphabet>(record: (String, [T?])?) -> String {
 
 /// stream an alignment as simple protein sequences
 if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
-   var stream = FastaStream<Protein>(openAtPath:path)
+   var stream = FastaStream<Protein>(open:path)
 {
     fastaPrint(record:stream.read())
     fastaPrint(record:stream.read())
@@ -55,7 +55,7 @@ if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
 
 /// stream an alignment as aligned protein sequences
 if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
-    var stream = FastaStream<Aligned<Protein>>(openAtPath:path)
+    var stream = FastaStream<Gapped<Protein>>(open:path)
 {
     fastaPrint(record:stream.read())
     fastaPrint(record:stream.read())
@@ -68,3 +68,31 @@ if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
     fastaPrint(record:stream.read())
     fastaPrint(record:stream.read())
 }
+
+/// stream an alignment as aligned protein sequences
+if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
+    var alignment = Alignment<Protein>(open:path, layout:.row)
+{
+    let rowBased = alignment
+    alignment.layout = .column
+    let colBased = alignment
+    rowBased[0, 1]
+    colBased[0, 1]
+    rowBased[0, 1] == colBased[0, 1]
+    rowBased.layout == colBased.layout
+    
+    rowBased["sequence1"]
+    colBased["sequence1"]
+    rowBased["sequence1"]! == colBased["sequence1"]!
+    
+    rowBased.row(at:1)
+    colBased.row(at:1)
+    rowBased.row(at:1) == colBased.row(at:1)
+
+    rowBased.column(at:1)
+    colBased.column(at:1)
+    rowBased.column(at:1) == colBased.column(at:1)
+}
+
+
+
