@@ -41,16 +41,16 @@ class AlchemyCSATests: XCTestCase {
 
     /// ...
     func assayAlphabet<A: Alphabet>(alphabet: A.Type, alphabetSize: Int) {
-        for letter in A.allLetters {
-            let token: Character
+        for letter in A.allValues {
+            let character: Character
             if uniform() < 0.5 {
-                token = String(letter).uppercased().characters.first!
+                character = String(letter).uppercased().characters.first!
             } else {
-                token = String(letter).lowercased().characters.first!
+                character = String(letter).lowercased().characters.first!
             }
-            XCTAssert(A(letter:token) != nil, "\(token) failed to convert to \(A.self)")
+            XCTAssert(A(character) != nil, "\(character) failed to convert to \(A.self)")
         }
-        XCTAssert(A.allLetters.count == alphabetSize, "\(A.self) has size of \(A.allLetters.count) not \(alphabetSize)")
+        XCTAssert(A.allValues.count == alphabetSize, "\(A.self) has size of \(A.allValues.count) not \(alphabetSize)")
     }
     
     /// ... 
@@ -59,7 +59,7 @@ class AlchemyCSATests: XCTestCase {
             XCTFail("Failed to locate \"\(resource)\"")
             return
         }
-        guard var stream = FastaStream<Protein>(openAtPath:path) else {
+        guard var stream = FastaStream<Protein>(open:path) else {
             XCTFail("Failed to stream \"\(resource)\"")
             return
         }

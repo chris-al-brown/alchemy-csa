@@ -142,7 +142,7 @@ extension FileStream: CustomStringConvertible {
 }
 
 /// ...
-public struct FastaStream<Letters: Alphabet>: DataStream {
+public struct FastaStream<Letter>: DataStream {
 
     /// ...
     public typealias Datum = Record
@@ -154,11 +154,12 @@ public struct FastaStream<Letters: Alphabet>: DataStream {
     public typealias Record = (Header, Sequence)
     
     /// ...
-    public typealias Sequence = [Letters?]
-    
+    public typealias Sequence = [Letter?]
+
     /// ...
-    public init?(openAtPath path: String) {
+    public init?(open path: String, conversion: (Character) -> Letter?) {
         if let stream = FileStream(openAtPath:path) {
+            self.conversion = conversion
             self.header = nil
             self.sequence = []
             self.stream = stream
@@ -194,7 +195,7 @@ public struct FastaStream<Letters: Alphabet>: DataStream {
         if stream.peek() == ">" { return }
         guard let line = stream.read() else { return }
         for character in line.characters {
-            sequence.append(Letters(letter:character))
+            sequence.append(conversion(character))
         }
         readSequence()
     }
@@ -212,6 +213,9 @@ public struct FastaStream<Letters: Alphabet>: DataStream {
     }
     
     /// ...
+    private var conversion: (Character) -> Letter?
+    
+    /// ...
     private var header: String?
     
     /// ...
@@ -222,11 +226,20 @@ public struct FastaStream<Letters: Alphabet>: DataStream {
 }
 
 /// ...
+extension FastaStream where Letter: Alphabet {
+    
+    /// ...
+    public init?(open path: String) {
+        self.init(open:path, conversion:Letter.init)
+    }
+}
+
+/// ...
 extension FastaStream: CustomStringConvertible {
     
     /// ...
     public var description: String {
-        return "FastaStream<\(Letters.self)>(\(stream.EOF) bytes)"
+        return "FastaStream<\(Letter.self)>(\(stream.EOF) bytes)"
     }
 }
 

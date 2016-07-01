@@ -27,13 +27,13 @@
 import Foundation
 
 /// ...
-public protocol Alphabet: CustomStringConvertible, Hashable {
+public protocol Alphabet: Hashable {
 
     /// ...
-    static var allLetters: Set<Self> { get }
+    static var allValues: Set<Self> { get }
 
     /// ...
-    init?(letter: Character)
+    init?(_ c: Character)
 }
 
 /// ...
@@ -46,17 +46,17 @@ public enum Aligned<Wrapped: Alphabet>: Alphabet {
     case wrapped(Wrapped)
     
     /// ...
-    public static var allLetters: Set<Aligned<Wrapped>> {
-        return Set(Wrapped.allLetters.map { return .wrapped($0) } + [.gap])
+    public static var allValues: Set<Aligned<Wrapped>> {
+        return Set(Wrapped.allValues.map { return .wrapped($0) } + [.gap])
     }
     
     /// ...
-    public init?(letter: Character) {
-        switch letter {
+    public init?(_ c: Character) {
+        switch c {
         case "-", ".":
             self = .gap
         default:
-            if let w = Wrapped(letter:letter) {
+            if let w = Wrapped(c) {
                 self = .wrapped(w)
             } else {
                 return nil
@@ -74,7 +74,7 @@ extension Aligned: CustomStringConvertible {
         case .gap:
             return "-"
         case .wrapped(let w):
-            return w.description
+            return String(w)
         }
     }
 }
@@ -122,13 +122,13 @@ public enum DNA: Alphabet {
     case thymine
     
     /// ...
-    public static let allLetters: Set<DNA> = [
+    public static let allValues: Set<DNA> = [
         .adenine, .cytosine, .guanine, .thymine
     ]
     
     /// ...
-    public init?(letter: Character) {
-        switch letter {
+    public init?(_ c: Character) {
+        switch c {
         case "a", "A":
             self = .adenine
         case "c", "C":
@@ -225,7 +225,7 @@ public enum Protein: Alphabet {
     case valine
     
     /// ...
-    public static let allLetters: Set<Protein> = [
+    public static let allValues: Set<Protein> = [
         .alanine, .arginine, .asparagine, .asparticAcid, .cysteine,
         .glutamicAcid, .glutamine, .glycine, .histidine, .isoleucine,
         .leucine, .lysine, .methionine, .phenylalanine, .proline,
@@ -233,8 +233,8 @@ public enum Protein: Alphabet {
     ]
     
     /// ...
-    public init?(letter: Character) {
-        switch letter {
+    public init?(_ c: Character) {
+        switch c {
         case "a", "A":
             self = .alanine
         case "r", "R":
@@ -347,13 +347,13 @@ public enum RNA: Alphabet {
     case uracil
 
     /// ...
-    public static let allLetters: Set<RNA> = [
+    public static let allValues: Set<RNA> = [
         .adenine, .cytosine, .guanine, .uracil
     ]
 
     /// ...
-    public init?(letter: Character) {
-        switch letter {
+    public init?(_ c: Character) {
+        switch c {
         case "a", "A":
             self = .adenine
         case "c", "C":
