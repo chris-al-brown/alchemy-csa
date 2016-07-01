@@ -24,6 +24,72 @@
 // 06/29/2016
 // -----------------------------------------------------------------------------
 
-//import AlchemyCSA
+import Foundation
+import AlchemyCSA
 
-/// ...
+/// print a fasta record
+func fastaPrint<T: Alphabet where T: CustomStringConvertible>(record: (String, [T?])?) -> String {
+    guard let record = record else {
+        return "..."
+    }
+    let header = record.0
+    let sequence = record.1.map {return $0?.description ?? "•"}
+    return ">\(header): \(sequence)"
+}
+
+/// stream an alignment as simple protein sequences
+if let path = Bundle.main().pathForResource("small.aln", ofType:nil) {
+    var stream = try FastaStream<Protein>(open:path)
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    stream.reset()
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+}
+
+/// stream an alignment as aligned protein sequences
+if let path = Bundle.main().pathForResource("small.aln", ofType:nil) {
+    var stream = try FastaStream<Gapped<Protein>>(open:path)
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    stream.reset()
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+    fastaPrint(record:stream.read())
+}
+
+/// stream an alignment as aligned protein sequences
+if let path = Bundle.main().pathForResource("small.aln", ofType:nil) {
+    var alignment = try Alignment<Protein>(open:path)
+    let rowBased = alignment
+    alignment.memoryLayout = .column
+    let colBased = alignment
+    rowBased[0, 1]
+    colBased[0, 1]
+    rowBased[0, 1] == colBased[0, 1]
+    rowBased.memoryLayout == colBased.memoryLayout
+    
+    rowBased["sequence1"]
+    colBased["sequence1"]
+    rowBased["sequence1"]! == colBased["sequence1"]!
+    
+    rowBased.row(at:1)
+    colBased.row(at:1)
+    rowBased.row(at:1) == colBased.row(at:1)
+
+    rowBased.column(at:1)
+    colBased.column(at:1)
+    rowBased.column(at:1) == colBased.column(at:1)
+}
+
+
+
