@@ -43,7 +43,7 @@ import PackageDescription
 let package = Package(
     name: "MyProjectUsingAlchemyCSA",
     dependencies: [
-        .Package(url: "https://github.com/chris-al-brown/alchemy-csa", majorVersion: 0, minor: 1)
+        .Package(url: "https://github.com/chris-al-brown/alchemy-csa", majorVersion: 0, minor: 2)
     ]
 )
 ```
