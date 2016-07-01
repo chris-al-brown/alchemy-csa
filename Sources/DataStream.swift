@@ -40,6 +40,16 @@ public protocol DataStream {
 }
 
 /// ...
+public enum FileStreamError: ErrorProtocol {
+    
+    /// ...
+    case AccessFailed(reading: String)
+
+    /// ...
+    case EmptyFile
+}
+
+/// ...
 public final class FileStream: DataStream {
 
     /// ...
@@ -49,16 +59,19 @@ public final class FileStream: DataStream {
     public typealias Line = String
 
     /// ...
-    public init?(openAtPath path: String, delimiter: String = "\n") {
+    public init(open path: String, delimiter: String = "\n") throws {
         if let handle = FileHandle(forReadingAtPath:path) {
             self.handle = handle
             handle.seekToEndOfFile()
             self.EOF = handle.offsetInFile
+            if EOF == 0 {
+                throw FileStreamError.EmptyFile
+            }
             self.delimiter = delimiter.data(using:encoding)!
             self.buffer = Data(capacity:chunk)!
             handle.seek(toFileOffset:0)
         } else {
-            return nil
+            throw FileStreamError.AccessFailed(reading:path)
         }
     }
     
@@ -142,6 +155,13 @@ extension FileStream: CustomStringConvertible {
 }
 
 /// ...
+public enum FastaStreamError: ErrorProtocol {
+    
+    /// ...
+    case InvalidFormat(expected: String, recieved: String)
+}
+
+/// ...
 public struct FastaStream<Letter>: DataStream {
 
     /// ...
@@ -157,15 +177,18 @@ public struct FastaStream<Letter>: DataStream {
     public typealias Sequence = [Letter?]
 
     /// ...
-    public init?(open path: String, conversion: (String) -> Letter?) {
-        if let stream = FileStream(openAtPath:path) {
-            self.conversion = conversion
-            self.header = nil
-            self.sequence = []
-            self.stream = stream
-        } else {
-            return nil
+    public init(open path: String, conversion: (String) -> Letter?) throws {
+        self.conversion = conversion
+        self.header = nil
+        self.sequence = []
+        self.stream = try FileStream(open:path)
+        guard let line = stream.read() else {
+            throw FileStreamError.EmptyFile
         }
+        if line.characters.first != ">" {
+            throw FastaStreamError.InvalidFormat(expected:">", recieved:line)
+        }
+        stream.reset()
     }
     
     /// ...
@@ -229,8 +252,8 @@ public struct FastaStream<Letter>: DataStream {
 extension FastaStream where Letter: Alphabet {
     
     /// ...
-    public init?(open path: String) {
-        self.init(open:path, conversion:Letter.init)
+    public init(open path: String) throws {
+        try self.init(open:path, conversion:Letter.init)
     }
 }
 

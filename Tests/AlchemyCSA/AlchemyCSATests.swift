@@ -58,26 +58,27 @@ class AlchemyCSATests: XCTestCase {
         XCTAssert(A.allValues.count == alphabetSize, "\(A.self) has size of \(A.allValues.count) not \(alphabetSize)")
     }
     
-    /// ... 
+    /// ...
     func assayDataStreams(resource: String, sequenceCount: Int, sequenceLength: Int) {
         guard let path = Bundle(for:self.dynamicType).pathForResource(resource, ofType:nil) else {
             XCTFail("Failed to locate \"\(resource)\"")
             return
         }
-        guard var stream = FastaStream<Protein>(open:path) else {
-            XCTFail("Failed to stream \"\(resource)\"")
-            return
+        do {
+            var stream = try FastaStream<Protein>(open:path)
+            var record = stream.read()
+            var count: Int = 0
+            while record != nil {
+                let header = record!.0
+                let sequence = record!.1
+                XCTAssert(sequence.count == sequenceLength, "\(header) has a sequence length of \(sequence.count) not \(sequenceLength)")
+                count += 1
+                record = stream.read()
+            }
+            XCTAssert(count == sequenceCount, "\"\(resource)\" contained \(count) sequences and not \(sequenceCount)")
+        } catch _ {
+            XCTFail()
         }
-        var record = stream.read()
-        var count: Int = 0
-        while record != nil {
-            let header = record!.0
-            let sequence = record!.1
-            XCTAssert(sequence.count == sequenceLength, "\(header) has a sequence length of \(sequence.count) not \(sequenceLength)")
-            count += 1
-            record = stream.read()
-        }
-        XCTAssert(count == sequenceCount, "\"\(resource)\" contained \(count) sequences and not \(sequenceCount)")
     }
     
     /// ...
@@ -86,24 +87,25 @@ class AlchemyCSATests: XCTestCase {
             XCTFail("Failed to locate \"\(resource)\"")
             return
         }
-        guard let alignment = Alignment<Protein>(open:path, layout:.row) else {
-            XCTFail("Failed to load alignment \"\(path)\"")
-            return
+        do {
+            let alignment = try Alignment<Protein>(open:path)
+            let rowAlignment = alignment
+            var colAlignment = alignment
+            colAlignment.memoryLayout = .column
+            let samples = Int(0.5 * Double(alignment.rowCount) * Double(alignment.columnCount))
+            for _ in 0..<samples {
+                let row = random(alignment.rowCount)
+                let col = random(alignment.columnCount)
+                XCTAssert(rowAlignment[row, col] == colAlignment[row, col], "\(alignment) failed memory layout changes")
+            }
+            XCTAssert(rowAlignment[sampleHeader]! == colAlignment[sampleHeader]!, "\(alignment) failed header lookup for \(sampleHeader)")
+            let rindex = random(alignment.rowCount)
+            XCTAssert(rowAlignment.row(at:rindex) == colAlignment.row(at:rindex), "\(alignment) failed row access for index \(rindex)")
+            let cindex = random(alignment.columnCount)
+            XCTAssert(rowAlignment.column(at:cindex) == colAlignment.column(at:cindex), "\(alignment) failed column access for index \(cindex)")
+        } catch _ {
+            XCTFail()
         }
-        let rowAlignment = alignment
-        var colAlignment = alignment
-        colAlignment.layout = .column
-        let samples = Int(0.5 * Double(alignment.rowCount) * Double(alignment.columnCount))
-        for _ in 0..<samples {
-            let row = random(alignment.rowCount)
-            let col = random(alignment.columnCount)
-            XCTAssert(rowAlignment[row, col] == colAlignment[row, col], "\(alignment) failed memory layout changes")
-        }
-        XCTAssert(rowAlignment[sampleHeader]! == colAlignment[sampleHeader]!, "\(alignment) failed header lookup for \(sampleHeader)")
-        let rindex = random(alignment.rowCount)
-        XCTAssert(rowAlignment.row(at:rindex) == colAlignment.row(at:rindex), "\(alignment) failed row access for index \(rindex)")
-        let cindex = random(alignment.columnCount)
-        XCTAssert(rowAlignment.column(at:cindex) == colAlignment.column(at:cindex), "\(alignment) failed column access for index \(cindex)")
     }
     
     /// ...
