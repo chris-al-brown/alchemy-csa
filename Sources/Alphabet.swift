@@ -92,6 +92,76 @@ extension DNA: CustomStringConvertible {
 }
 
 /// ...
+public enum Gapped<Wrapped: Alphabet>: Alphabet {
+    
+    /// ...
+    case gap
+    
+    /// ...
+    case wrapped(Wrapped)
+    
+    /// ...
+    public static var allValues: Set<Gapped<Wrapped>> {
+        return Set(Wrapped.allValues.map { return .wrapped($0) } + [.gap])
+    }
+    
+    /// ...
+    public init?(_ value: String) {
+        switch value {
+        case "-", ".":
+            self = .gap
+        default:
+            if let w = Wrapped(value) {
+                self = .wrapped(w)
+            } else {
+                return nil
+            }
+        }
+    }
+}
+
+/// ...
+extension Gapped: CustomStringConvertible {
+    
+    /// ...
+    public var description: String {
+        switch self {
+        case .gap:
+            return "-"
+        case .wrapped(let w):
+            return String(w)
+        }
+    }
+}
+
+/// ...
+extension Gapped: Hashable {
+    
+    /// ...
+    public var hashValue: Int {
+        switch self {
+        case .gap:
+            return Wrapped.allValues.count
+        case .wrapped(let w):
+            return w.hashValue
+        }
+    }
+}
+
+/// ...
+extension Gapped: Equatable {}
+public func ==<T>(lhs: Gapped<T>, rhs: Gapped<T>) -> Bool {
+    switch (lhs, rhs) {
+    case (.gap, .gap):
+        return true
+    case (.wrapped(let l), .wrapped(let r)):
+        return l == r
+    default:
+        return false
+    }
+}
+
+/// ...
 public enum Protein: Alphabet {
     
     /// ...

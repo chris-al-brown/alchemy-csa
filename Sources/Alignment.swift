@@ -27,58 +27,81 @@
 import Foundation
 
 /// ...
-public enum AlignmentMemoryLayout {
-    
-    /// ...
-    case column
+public enum AlignmentError: ErrorProtocol {
 
     /// ...
-    case row
+    case VariableSequenceLength(expected: Int, received: Int)
+}
+
+/// ...
+public struct AlignmentSettings {
+    
+    /// ...
+    public enum MemoryLayout {
+        
+        /// ...
+        case column
+        
+        /// ...
+        case row
+    }
+    
+    /// ...
+    public init(layout: MemoryLayout = .row) {
+        self.memoryLayout = layout
+    }
+    
+    /// ...
+    public var memoryLayout: MemoryLayout
 }
 
 /// ...
 public struct Alignment<Letter: Alphabet> {
-    
+
+    /// ...
+    public typealias Column = Sequence
+
     /// ...
     public typealias Header = String
 
     /// ...
-    public typealias Sequence = [Gapped<Letter>]
+    public typealias Position = Gapped<Letter>
 
     /// ...
-    public init?(open path: String, layout: AlignmentMemoryLayout) {
-        if var fasta = FastaStream<Letter>(open:path) {
-            self.columnCount = 0
-            self.headers = [:]
-            self.memory = .row
-            self.rowCount = 0
-            self.storage = []
-            var record = fasta.read()
-            while let (header, sequence) = record {
-                if columnCount > 0 && sequence.count != columnCount {
-                    return nil
-                }
-                columnCount = sequence.count
-                headers[header] = rowCount
-                let contents: Sequence = sequence.map {
-                    if let w = $0 {
-                        return .wrapped(w)
-                    } else {
-                        return .gap
-                    }
-                }
-                storage.append(contentsOf:contents)
-                rowCount += 1
-                record = fasta.read()
-            }
-            reorder(to:layout)
-        } else {
-            return nil
-        }
-    }
+    public typealias Row = Sequence
+
+    /// ...
+    public typealias Sequence = [Position]
     
     /// ...
-    public subscript (header: Header) -> Sequence? {
+    private typealias Storage = [Position]
+
+    /// ...
+    public init(open path: String, settings: AlignmentSettings = AlignmentSettings()) throws {
+        var fasta = try FastaStream<Letter>(open:path)
+        self.columnCount = 0
+        self.headers = [:]
+        self.memory = .row
+        self.rowCount = 0
+        self.storage = []
+        var record = fasta.read()
+        while let (header, sequence) = record {
+            if columnCount > 0 && sequence.count != columnCount {
+                throw AlignmentError.VariableSequenceLength(expected:columnCount, received:sequence.count)
+            }
+            columnCount = sequence.count
+            headers[header] = rowCount
+            for s in sequence {
+                storage.append(s == .none ? .gap : .wrapped(s.unsafelyUnwrapped))
+            }
+            rowCount += 1
+            record = fasta.read()
+        }
+        reorder(to:settings.memoryLayout)
+    }
+
+    /// ...
+    public subscript (header: Header) -> Row? {
         if let index = headers[header] {
             return row(at:index)
         } else {
@@ -87,7 +110,7 @@ public struct Alignment<Letter: Alphabet> {
     }
     
     /// ...
-    public subscript (row: Int, column: Int) -> Gapped<Letter> {
+    public subscript (row: Int, column: Int) -> Position {
         switch memory {
         case .column:
             return storage[column * rowCount + row]
@@ -97,7 +120,7 @@ public struct Alignment<Letter: Alphabet> {
     }
     
     /// ...
-    public func column(at index: Int) -> Sequence {
+    public func column(at index: Int) -> Column {
         switch memory {
         case .column:
             return Array(storage[index * rowCount..<(index + 1) * rowCount])
@@ -112,7 +135,7 @@ public struct Alignment<Letter: Alphabet> {
     }
 
     /// ...
-    public func row(at index: Int) -> Sequence {
+    public func row(at index: Int) -> Row {
         switch memory {
         case .column:
             var output: Sequence = []
@@ -127,7 +150,7 @@ public struct Alignment<Letter: Alphabet> {
     }
     
     /// ...
-    private mutating func reorder(to value: AlignmentMemoryLayout) {
+    private mutating func reorder(to value: AlignmentSettings.MemoryLayout) {
         if value == memory { return }
         if rowCount == 0 && columnCount == 0 { return }
         var tmp = Array(repeating:storage[0], count:storage.count)
@@ -150,7 +173,7 @@ public struct Alignment<Letter: Alphabet> {
     }
     
     /// ...
-    public var layout: AlignmentMemoryLayout {
+    public var memoryLayout: AlignmentSettings.MemoryLayout {
         get {
             return memory
         }
@@ -166,13 +189,13 @@ public struct Alignment<Letter: Alphabet> {
     private var headers: [Header: Int]
     
     /// ...
-    private var memory: AlignmentMemoryLayout
+    private var memory: AlignmentSettings.MemoryLayout
     
     /// ...
     public private(set) var rowCount: Int
 
     /// ...
-    private var storage: Sequence
+    private var storage: Storage
 }
 
 /// ...
@@ -181,76 +204,6 @@ extension Alignment: CustomStringConvertible {
     /// ...
     public var description: String {
         return "Alignment<\(Letter.self)>(\(rowCount)x\(columnCount))"
-    }
-}
-
-/// ...
-public enum Gapped<Wrapped: Alphabet>: Alphabet {
-    
-    /// ...
-    case gap
-    
-    /// ...
-    case wrapped(Wrapped)
-    
-    /// ...
-    public static var allValues: Set<Gapped<Wrapped>> {
-        return Set(Wrapped.allValues.map { return .wrapped($0) } + [.gap])
-    }
-    
-    /// ...
-    public init?(_ value: String) {
-        switch value {
-        case "-", ".":
-            self = .gap
-        default:
-            if let w = Wrapped(value) {
-                self = .wrapped(w)
-            } else {
-                return nil
-            }
-        }
-    }
-}
-
-/// ...
-extension Gapped: CustomStringConvertible {
-    
-    /// ...
-    public var description: String {
-        switch self {
-        case .gap:
-            return "-"
-        case .wrapped(let w):
-            return String(w)
-        }
-    }
-}
-
-/// ...
-extension Gapped: Hashable {
-    
-    /// ...
-    public var hashValue: Int {
-        switch self {
-        case .gap:
-            return Wrapped.allValues.count
-        case .wrapped(let w):
-            return w.hashValue
-        }
-    }
-}
-
-/// ...
-extension Gapped: Equatable {}
-public func ==<T>(lhs: Gapped<T>, rhs: Gapped<T>) -> Bool {
-    switch (lhs, rhs) {
-    case (.gap, .gap):
-        return true
-    case (.wrapped(let l), .wrapped(let r)):
-        return l == r
-    default:
-        return false
     }
 }
 

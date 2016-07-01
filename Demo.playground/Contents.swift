@@ -38,9 +38,8 @@ func fastaPrint<T: Alphabet where T: CustomStringConvertible>(record: (String, [
 }
 
 /// stream an alignment as simple protein sequences
-if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
-   var stream = FastaStream<Protein>(open:path)
-{
+if let path = Bundle.main().pathForResource("small.aln", ofType:nil) {
+    var stream = try FastaStream<Protein>(open:path)
     fastaPrint(record:stream.read())
     fastaPrint(record:stream.read())
     fastaPrint(record:stream.read())
@@ -54,9 +53,8 @@ if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
 }
 
 /// stream an alignment as aligned protein sequences
-if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
-    var stream = FastaStream<Gapped<Protein>>(open:path)
-{
+if let path = Bundle.main().pathForResource("small.aln", ofType:nil) {
+    var stream = try FastaStream<Gapped<Protein>>(open:path)
     fastaPrint(record:stream.read())
     fastaPrint(record:stream.read())
     fastaPrint(record:stream.read())
@@ -70,16 +68,15 @@ if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
 }
 
 /// stream an alignment as aligned protein sequences
-if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
-    var alignment = Alignment<Protein>(open:path, layout:.row)
-{
+if let path = Bundle.main().pathForResource("small.aln", ofType:nil) {
+    var alignment = try Alignment<Protein>(open:path)
     let rowBased = alignment
-    alignment.layout = .column
+    alignment.memoryLayout = .column
     let colBased = alignment
     rowBased[0, 1]
     colBased[0, 1]
     rowBased[0, 1] == colBased[0, 1]
-    rowBased.layout == colBased.layout
+    rowBased.memoryLayout == colBased.memoryLayout
     
     rowBased["sequence1"]
     colBased["sequence1"]
