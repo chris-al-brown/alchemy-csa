@@ -40,63 +40,108 @@ public enum AlignmentMemoryLayout {
 public struct Alignment<Letter: Alphabet> {
     
     /// ...
-    public typealias Header = FastaStream<Letter>.Header
-    
+    public typealias Header = String
+
+    /// ...
+    public typealias Sequence = [Gapped<Letter>]
+
     /// ...
     public init?(open path: String, layout: AlignmentMemoryLayout) {
-        if var fasta = FastaStream<Gapped<Letter>>(open:path) {
-            self.columns = 0
+        if var fasta = FastaStream<Letter>(open:path) {
+            self.columnCount = 0
             self.headers = [:]
             self.memory = .row
-            self.rows = 0
+            self.rowCount = 0
             self.storage = []
             var record = fasta.read()
             while let (header, sequence) = record {
-                if columns > 0 && sequence.count != columns {
+                if columnCount > 0 && sequence.count != columnCount {
                     return nil
                 }
-                columns = sequence.count
-                headers[header] = rows
-                storage.append(contentsOf:sequence)
-                rows += 1
+                columnCount = sequence.count
+                headers[header] = rowCount
+                let contents: Sequence = sequence.map {
+                    if let w = $0 {
+                        return .wrapped(w)
+                    } else {
+                        return .gap
+                    }
+                }
+                storage.append(contentsOf:contents)
+                rowCount += 1
                 record = fasta.read()
             }
-            reorderMemory(layout)
+            reorder(to:layout)
         } else {
             return nil
         }
     }
     
     /// ...
-    public subscript (row: Int, column: Int) -> Gapped<Letter>? {
-        switch memory {
-        case .column:
-            return storage[column * rows + row]
-        case .row:
-            return storage[row * columns + column]
+    public subscript (header: Header) -> Sequence? {
+        if let index = headers[header] {
+            return row(at:index)
+        } else {
+            return nil
         }
     }
     
     /// ...
-    private mutating func reorderMemory(_ value: AlignmentMemoryLayout) {
+    public subscript (row: Int, column: Int) -> Gapped<Letter> {
+        switch memory {
+        case .column:
+            return storage[column * rowCount + row]
+        case .row:
+            return storage[row * columnCount + column]
+        }
+    }
+    
+    /// ...
+    public func column(at index: Int) -> Sequence {
+        switch memory {
+        case .column:
+            return Array(storage[index * rowCount..<(index + 1) * rowCount])
+        case .row:
+            var output: Sequence = []
+            output.reserveCapacity(rowCount)
+            for i in stride(from:index, to:rowCount * columnCount, by:columnCount) {
+                output.append(storage[i])
+            }
+            return output
+        }
+    }
+
+    /// ...
+    public func row(at index: Int) -> Sequence {
+        switch memory {
+        case .column:
+            var output: Sequence = []
+            output.reserveCapacity(columnCount)
+            for i in stride(from:index, to:rowCount * columnCount, by:rowCount) {
+                output.append(storage[i])
+            }
+            return output
+        case .row:
+            return Array(storage[index * columnCount..<(index + 1) * columnCount])
+        }
+    }
+    
+    /// ...
+    private mutating func reorder(to value: AlignmentMemoryLayout) {
         if value == memory { return }
-        if rows == 0 && columns == 0 { return }
+        if rowCount == 0 && columnCount == 0 { return }
         var tmp = Array(repeating:storage[0], count:storage.count)
         switch value {
         case .column:
-            for c in 0..<columns {
-                for r in 0..<rows {
-                    let index1 = c * rows + r
-                    let index2 = r * columns + c
-                    tmp[index1] = storage[index2]
+            for c in 0..<columnCount {
+                for r in 0..<rowCount {
+                    tmp[c * rowCount + r] = storage[r * columnCount + c]
                 }
             }
         case .row:
-            for c in 0..<columns {
-                for r in 0..<rows {
-                    let index1 = c * rows + r
-                    let index2 = r * columns + c
-                    tmp[index2] = storage[index1]
+            for c in 0..<columnCount {
+                for r in 0..<rowCount {
+                    tmp[r * columnCount + c] = storage[c * rowCount + r]
                 }
             }
         }
@@ -110,12 +155,12 @@ public struct Alignment<Letter: Alphabet> {
             return memory
         }
         mutating set {
-            reorderMemory(newValue)
+            reorder(to:newValue)
         }
     }
 
     /// ...
-    public private(set) var columns: Int
+    public private(set) var columnCount: Int
 
     /// ...
     private var headers: [Header: Int]
@@ -124,10 +169,10 @@ public struct Alignment<Letter: Alphabet> {
     private var memory: AlignmentMemoryLayout
     
     /// ...
-    public private(set) var rows: Int
+    public private(set) var rowCount: Int
 
     /// ...
-    private var storage: [Gapped<Letter>?]
+    private var storage: Sequence
 }
 
 /// ...
@@ -135,7 +180,7 @@ extension Alignment: CustomStringConvertible {
     
     /// ...
     public var description: String {
-        return "Alignment<\(Letter.self)>(\(rows)x\(columns))"
+        return "Alignment<\(Letter.self)>(\(rowCount)x\(columnCount))"
     }
 }
 
@@ -154,12 +199,12 @@ public enum Gapped<Wrapped: Alphabet>: Alphabet {
     }
     
     /// ...
-    public init?(_ c: Character) {
-        switch c {
+    public init?(_ value: String) {
+        switch value {
         case "-", ".":
             self = .gap
         default:
-            if let w = Wrapped(c) {
+            if let w = Wrapped(value) {
                 self = .wrapped(w)
             } else {
                 return nil

@@ -157,7 +157,7 @@ public struct FastaStream<Letter>: DataStream {
     public typealias Sequence = [Letter?]
 
     /// ...
-    public init?(open path: String, conversion: (Character) -> Letter?) {
+    public init?(open path: String, conversion: (String) -> Letter?) {
         if let stream = FileStream(openAtPath:path) {
             self.conversion = conversion
             self.header = nil
@@ -195,7 +195,7 @@ public struct FastaStream<Letter>: DataStream {
         if stream.peek() == ">" { return }
         guard let line = stream.read() else { return }
         for character in line.characters {
-            sequence.append(conversion(character))
+            sequence.append(conversion(String(character)))
         }
         readSequence()
     }
@@ -213,7 +213,7 @@ public struct FastaStream<Letter>: DataStream {
     }
     
     /// ...
-    private var conversion: (Character) -> Letter?
+    private var conversion: (String) -> Letter?
     
     /// ...
     private var header: String?

@@ -33,7 +33,7 @@ public protocol Alphabet: Hashable {
     static var allValues: Set<Self> { get }
 
     /// ...
-    init?(_ c: Character)
+    init?(_ value: String)
 }
 
 /// ...
@@ -57,15 +57,15 @@ public enum DNA: Alphabet {
     ]
     
     /// ...
-    public init?(_ c: Character) {
-        switch c {
-        case "a", "A":
+    public init?(_ value: String) {
+        switch value.lowercased() {
+        case "a", "adenine":
             self = .adenine
-        case "c", "C":
+        case "c", "cytosine":
             self = .cytosine
-        case "g", "G":
+        case "g", "guanine":
             self = .guanine
-        case "t", "T":
+        case "t", "thymine":
             self = .thymine
         default:
             return nil
@@ -163,47 +163,47 @@ public enum Protein: Alphabet {
     ]
     
     /// ...
-    public init?(_ c: Character) {
-        switch c {
-        case "a", "A":
+    public init?(_ value: String) {
+        switch value.lowercased() {
+        case "a", "ala", "alanine":
             self = .alanine
-        case "r", "R":
+        case "r", "arg", "arginine":
             self = .arginine
-        case "n", "N":
+        case "n", "asn", "asparagine":
             self = .asparagine
-        case "d", "D":
+        case "d", "asp", "aspartic acid":
             self = .asparticAcid
-        case "c", "C":
+        case "c", "cys", "cysteine":
             self = .cysteine
-        case "e", "E":
+        case "e", "glu", "glutamic acid":
             self = .glutamicAcid
-        case "q", "Q":
+        case "q", "gln", "glutamine":
             self = .glutamine
-        case "g", "G":
+        case "g", "gly", "glycine":
             self = .glycine
-        case "h", "H":
+        case "h", "his", "histidine":
             self = .histidine
-        case "i", "I":
+        case "i", "ile", "isoleucine":
             self = .isoleucine
-        case "l", "L":
+        case "l", "leu", "leucine":
             self = .leucine
-        case "k", "K":
+        case "k", "lys", "lysine":
             self = .lysine
-        case "m", "M":
+        case "m", "met", "methionine":
             self = .methionine
-        case "f", "F":
+        case "f", "phe", "phenylalanine":
             self = .phenylalanine
-        case "p", "P":
+        case "p", "pro", "proline":
             self = .proline
-        case "s", "S":
+        case "s", "ser", "serine":
             self = .serine
-        case "t", "T":
+        case "t", "thr", "threonine":
             self = .threonine
-        case "w", "W":
+        case "w", "trp", "tryptophan":
             self = .tryptophan
-        case "y", "Y":
+        case "y", "tyr", "tyrosine":
             self = .tyrosine
-        case "v", "V":
+        case "v", "val", "valine":
             self = .valine
         default:
             return nil
@@ -282,15 +282,15 @@ public enum RNA: Alphabet {
     ]
 
     /// ...
-    public init?(_ c: Character) {
-        switch c {
-        case "a", "A":
+    public init?(_ value: String) {
+        switch value.lowercased() {
+        case "a", "adenine":
             self = .adenine
-        case "c", "C":
+        case "c", "cytosine":
             self = .cytosine
-        case "g", "G":
+        case "g", "guanine":
             self = .guanine
-        case "u", "U":
+        case "u", "uracil":
             self = .uracil
         default:
             return nil

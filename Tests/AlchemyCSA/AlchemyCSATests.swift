@@ -47,13 +47,13 @@ class AlchemyCSATests: XCTestCase {
     /// ...
     func assayAlphabet<A: Alphabet>(alphabet: A.Type, alphabetSize: Int) {
         for letter in A.allValues {
-            let character: Character
+            let input: String
             if uniform() < 0.5 {
-                character = String(letter).uppercased().characters.first!
+                input = String(letter).uppercased()
             } else {
-                character = String(letter).lowercased().characters.first!
+                input = String(letter).lowercased()
             }
-            XCTAssert(A(character) != nil, "\(character) failed to convert to \(A.self)")
+            XCTAssert(A(input) != nil, "\(input) failed to convert to \(A.self)")
         }
         XCTAssert(A.allValues.count == alphabetSize, "\(A.self) has size of \(A.allValues.count) not \(alphabetSize)")
     }
@@ -81,24 +81,29 @@ class AlchemyCSATests: XCTestCase {
     }
     
     /// ...
-    func assayAlignments(resource: String) {
+    func assayAlignments(resource: String, sampleHeader: String) {
         guard let path = Bundle(for:self.dynamicType).pathForResource(resource, ofType:nil) else {
             XCTFail("Failed to locate \"\(resource)\"")
             return
         }
-        guard let alignment = Alignment<Gapped<Protein>>(open:path, layout:.row) else {
+        guard let alignment = Alignment<Protein>(open:path, layout:.row) else {
             XCTFail("Failed to load alignment \"\(path)\"")
             return
         }
-        let rowBased = alignment
-        var colBased = alignment
-        colBased.layout = .column
-        let samples = Int(0.5 * Double(alignment.rows) * Double(alignment.columns))
+        let rowAlignment = alignment
+        var colAlignment = alignment
+        colAlignment.layout = .column
+        let samples = Int(0.5 * Double(alignment.rowCount) * Double(alignment.columnCount))
         for _ in 0..<samples {
-            let row = random(alignment.rows)
-            let col = random(alignment.columns)
-            XCTAssert(rowBased[row, col] == colBased[row, col], "\(alignment) failed memory layout changes")
+            let row = random(alignment.rowCount)
+            let col = random(alignment.columnCount)
+            XCTAssert(rowAlignment[row, col] == colAlignment[row, col], "\(alignment) failed memory layout changes")
         }
+        XCTAssert(rowAlignment[sampleHeader]! == colAlignment[sampleHeader]!, "\(alignment) failed header lookup for \(sampleHeader)")
+        let rindex = random(alignment.rowCount)
+        XCTAssert(rowAlignment.row(at:rindex) == colAlignment.row(at:rindex), "\(alignment) failed row access for index \(rindex)")
+        let cindex = random(alignment.columnCount)
+        XCTAssert(rowAlignment.column(at:cindex) == colAlignment.column(at:cindex), "\(alignment) failed column access for index \(cindex)")
     }
     
     /// ...
@@ -113,8 +118,8 @@ class AlchemyCSATests: XCTestCase {
     
     /// ...
     func testAlignments() {
-        assayAlignments(resource:"small.aln")
-        assayAlignments(resource:"large.aln")
+        assayAlignments(resource:"small.aln", sampleHeader:"sequence0")
+        assayAlignments(resource:"large.aln", sampleHeader:"Q8YVH0/317-395")
     }
 
     /// ...

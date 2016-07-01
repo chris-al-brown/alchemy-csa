@@ -71,7 +71,7 @@ if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
 
 /// stream an alignment as aligned protein sequences
 if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
-    var alignment = Alignment<Gapped<Protein>>(open:path, layout:.row)
+    var alignment = Alignment<Protein>(open:path, layout:.row)
 {
     let rowBased = alignment
     alignment.layout = .column
@@ -80,6 +80,18 @@ if let path = Bundle.main().pathForResource("small.aln", ofType:nil),
     colBased[0, 1]
     rowBased[0, 1] == colBased[0, 1]
     rowBased.layout == colBased.layout
+    
+    rowBased["sequence1"]
+    colBased["sequence1"]
+    rowBased["sequence1"]! == colBased["sequence1"]!
+    
+    rowBased.row(at:1)
+    colBased.row(at:1)
+    rowBased.row(at:1) == colBased.row(at:1)
+
+    rowBased.column(at:1)
+    colBased.column(at:1)
+    rowBased.column(at:1) == colBased.column(at:1)
 }
 
 
